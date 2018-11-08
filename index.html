@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Lettore di Tessera Sanitaria</title>
+  </head>
+  <body>
+    <h1 id="hello">Ciao, Amico!</h1>
+	<p class="lead">Scansiona la tua tessera sanitaria o premi <button class="btn btn-default btn-scan">Scan</button> per simularne una</p>
+	<div id="scanned"></div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script>
+	/*
+localStorage.setItem("lastname", "X");	// Store
+console.log(localStorage.getItem("lastname"));// Retrieve
+
+To detect incognito mode
+var fs = window.RequestFileSystem || window.webkitRequestFileSystem;
+if (!fs) {
+  console.log("check failed?");
+} else {
+  fs(window.TEMPORARY,
+     100,
+     console.log.bind(console, "not in incognito mode"),
+     console.log.bind(console, "incognito mode"));
+}*/
+
+var string='';
+$(document).keypress(function(event){
+	string+=event.key;
+	if(event.key=='Enter'){
+		var isMatch=string.match(/%/g);
+		if(isMatch!=null && isMatch.length>0){
+			string=string.replace(/%/,'');
+			var code=string.substring(0,16);
+			var name=string.substring(16).trim().split(/_/);
+			name=name[0].split(/\s+/);
+			var firstname=name[1];
+			var lastname=name[0];
+			var scanned=code+';'+firstname+','+lastname;
+			$('#scanned').html($('#scanned').html()+ '<br />'+ scanned);
+			console.log(string);
+			$('#hello').text('Hello, '+firstname+' '+lastname);
+			// SEND TO SERVER
+			// GENERATE QR CODE (?) https://davidshimjs.github.io/qrcodejs/
+		}
+		string='';
+	}
+});
+
+$(function(){
+	$('.btn-scan').on('click',generateCode);
+});
+
+function generateCode(){
+	var names=[
+		{code:'MSOMKY80A01A794A',firstname:'Mickey',lastname:'Mouse'},
+		{code:'MSOMKY80A01A794B',firstname:'Minnie',lastname:'Mouse'},
+		{code:'MSOMKY80A01A794C',firstname:'Donald',lastname:'Duck'},
+		{code:'MSOMKY80A01A794D',firstname:'Daisy',lastname:'Duck'},
+		{code:'MSOMKY80A01A794E',firstname:'Huey',lastname:'Duck'},
+		{code:'MSOMKY80A01A794F',firstname:'Dewey',lastname:'Duck'},
+		{code:'MSOMKY80A01A794G',firstname:'Louie',lastname:'Duck'},
+		{code:'MSOMKY80A01A794H',firstname:'Clarabelle',lastname:'Cow'},
+		{code:'MSOMKY80A01A794I',firstname:'Max',lastname:'Goof'},
+		{code:'MSOMKY80A01A794J',firstname:'Horace',lastname:'Horsecollar'},
+		{code:'MSOMKY80A01A794K',firstname:'Clara',lastname:'Cluck'}
+	];
+	var random=randBetween(0,names.length-1);
+	var string='%'+names[random].code+names[random].lastname.toUpperCase()+' '+names[random].firstname.toUpperCase() +'_';
+	var enter='Enter';
+	for(i=0;i<string.length;i++) jQuery.event.trigger({type:'keypress',which:string[i].charCodeAt(0),key:string[i]});
+	jQuery.event.trigger({type:'keypress',which:enter.charCodeAt(0),key:enter});
+	string='ò10230004500678912345_';
+	for(i=0;i<string.length;i++) jQuery.event.trigger({type:'keypress',which:string[i].charCodeAt(0),key:string[i]});
+	jQuery.event.trigger({type:'keypress',which:enter.charCodeAt(0),key:enter});
+}
+
+function randBetween(min, max) {
+	return Math.floor(Math.random() * (max - min) ) + min;
+}
+	</script>
+  </body>
+</html>
